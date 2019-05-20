@@ -1,0 +1,108 @@
+---
+title: "2017 Nisqually Passive Sampler Study"
+output: html_notebook
+---
+
+```{r}
+# First step, clear workspace to make sure every thing will work, rm means remove
+rm(list=ls(all=TRUE))
+
+# load required packages/libraries
+library(readxl)
+library(tidyverse)
+library(stats)
+library(ggrepel)
+
+#set data path
+paths = list("C:\\data\\GitHub\\PassiveSamplers\\2017NQPassiveSamplers_Data.xlsx",
+             "C:\\data\\GitHub\\PassiveSamplers\\Outfiles\\")
+
+#set outfile
+outfile = paths[[2]]
+
+#read in data
+Sthd <- read_excel(paths[[1]],"Steelhead")
+```
+
+reshape() Steelhead dataframe to long format to set up for a loop.
+ERROR - row.names?
+```{r}
+colnames(Sthd)
+LongSthd <- reshape(Sthd, varying = c("TPCBs","TPCBsLipNorm", "Sum11PBDEs", "PBDEsLipNorm", 
+                                      "PBDE47", "PBDE99", "Sum47+99", "Sum47+99LipNorm",
+                                      "d15N_UW", "d13C_UW", "d13C_lipNorm","d34S_UW"),
+                    times = c("TPCBs","TPCBsLipNorm", "Sum11PBDEs", "PBDEsLipNorm", 
+                                      "PBDE47", "PBDE99", "Sum47+99", "Sum47+99LipNorm",
+                                      "d15N_UW", "d13C_UW", "d13C_lipNorm","d34S_UW"),
+                    v.names = "Variables", idvar = c("SampleID"), direction = "long")
+```
+Scatterplots comparing stable isotopes to PBDEs, etc
+```{r}
+Sthd$Year <- as.factor(Sthd$Year) #set year as a factor so it can be used as a categorical variable
+
+```
+
+Sum11PBDEs (ng/g ww) compared with d15N
+```{r}
+ggplot(data = Sthd, mapping = aes(x = d15N_UW, y = Sum11PBDEs)) +
+  geom_point(mapping = aes(color = Year), size = 2, shape = 1) +
+  geom_smooth(method = lm, se = TRUE, level = 0.95) +
+  geom_text(aes(label = ifelse(Sum11PBDEs > 6.5, #only labels points above a certain threshold
+                               as.character(SampleID),
+                               ' ')),
+            hjust = 0,
+            vjust = 0)
+```
+PBDEs/g lipids compared with d15N
+```{r}
+colnames(Sthd)
+ggplot(data = Sthd, mapping = aes(x = d15N_UW, y = PBDEsLipNorm)) +
+  geom_point(mapping = aes(color = Year), size = 2, shape = 1) +
+  geom_smooth(method = lm, se = TRUE, level = 0.95) +
+  geom_text(aes(label = ifelse(PBDEsLipNorm > 850, #only labels points above a certain threshold
+                               as.character(SampleID),
+                               ' ')),
+            hjust = 0,
+            vjust = 0)
+```
+A method to "repel" the labels so they don't overlap.
+```{r}
+ggplot(data = Sthd, mapping = aes(x = d15N_UW, y = PBDEsLipNorm)) +
+  geom_point(mapping = aes(color = Year), size = 2, shape = 1) +
+  geom_smooth(method = lm, se = TRUE, level = 0.95) +
+  geom_label_repel(aes(label = SampleID),
+                   box.padding = 0.35,
+                   point.padding = 0.5,
+                   segment.color = 'grey50') 
+```
+
+Sum PBDEs 47 + 99 compared with d15N
+```{r}
+colnames(Sthd)
+
+ggplot(data = Sthd, mapping = aes(x = d15N_UW, y = Sum47n99)) +
+  geom_point(mapping = aes(color = Year), size = 2, shape = 1) +
+  geom_smooth(method = lm, se = TRUE, level = 0.95) +
+  geom_text(aes(label = ifelse(Sum47n99 > 5, #only labels points above a certain threshold
+                               as.character(SampleID),
+                               ' ')),
+            hjust = 0,
+            vjust = 0)
+```
+Add a column with the ratio of PCBs to PBDEs
+```{r}
+colnames(Sthd)
+Sthd <- mutate(Sthd,
+               ratio = TPCBs / Sum11PBDEs)
+
+ggplot(data = Sthd, mapping = aes(x = d15N_UW, y = ratio)) +
+  geom_point(mapping = aes(color = Year), size = 2, shape = 1) +
+  geom_smooth(method = lm, se = TRUE, level = 0.95) +
+  geom_text(aes(label = ifelse(ratio > 3, #only labels points above a certain threshold
+                               as.character(SampleID),
+                               ' ')),
+            hjust = 0,
+            vjust = 0)
+
+```
+
