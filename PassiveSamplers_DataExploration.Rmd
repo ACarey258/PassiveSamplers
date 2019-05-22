@@ -25,16 +25,10 @@ Sthd <- read_excel(paths[[1]],"Steelhead")
 ```
 
 reshape() Steelhead dataframe to long format to set up for a loop.
-ERROR - row.names?
 ```{r}
 colnames(Sthd)
-LongSthd <- reshape(Sthd, varying = c("TPCBs","TPCBsLipNorm", "Sum11PBDEs", "PBDEsLipNorm", 
-                                      "PBDE47", "PBDE99", "Sum47+99", "Sum47+99LipNorm",
-                                      "d15N_UW", "d13C_UW", "d13C_lipNorm","d34S_UW"),
-                    times = c("TPCBs","TPCBsLipNorm", "Sum11PBDEs", "PBDEsLipNorm", 
-                                      "PBDE47", "PBDE99", "Sum47+99", "Sum47+99LipNorm",
-                                      "d15N_UW", "d13C_UW", "d13C_lipNorm","d34S_UW"),
-                    v.names = "Variables", idvar = c("SampleID"), direction = "long")
+LongSthd <- Sthd %>%
+  gather(Variable, Value, 9:20)
 ```
 Scatterplots comparing stable isotopes to PBDEs, etc
 ```{r}
@@ -54,19 +48,30 @@ ggplot(data = Sthd, mapping = aes(x = d15N_UW, y = Sum11PBDEs)) +
             hjust = 0,
             vjust = 0)
 ```
+2014 samples have a different d15N signal than 2015 samples (with one exception).
+
+2013 would have been a pink year so pink fry would have been in the system in spring 2014 - are the Steelhead smolts feeding on them and gaining a different d15N signature? 
+
+
 PBDEs/g lipids compared with d15N
 ```{r}
-colnames(Sthd)
+Sthd$lab1 <- ifelse(Sthd$PBDEsLipNorm > 850, Sthd$SampleID,"")
+
 ggplot(data = Sthd, mapping = aes(x = d15N_UW, y = PBDEsLipNorm)) +
   geom_point(mapping = aes(color = Year), size = 2, shape = 1) +
   geom_smooth(method = lm, se = TRUE, level = 0.95) +
-  geom_text(aes(label = ifelse(PBDEsLipNorm > 850, #only labels points above a certain threshold
-                               as.character(SampleID),
-                               ' ')),
-            hjust = 1, #horizontal justification 0.5 will center it, 1 is left, 0 is right
-            vjust = 0) #vertical justification, 0 is above and 1 is below
+  geom_label_repel(aes(label = Sthd$lab1, #only labels points w/PBDEsLipNorm >850
+                    fill = factor(Year)), color = 'black',
+                    size = 3.5)
+  
+  #geom_text(aes(label = ifelse(PBDEsLipNorm > 850, #only labels points above a certain threshold
+                               #as.character(SampleID),
+                               #' ')),
+            #hjust = 1, #horizontal justification 0.5 will center it, 1 is left, 0 is right
+            #vjust = 0) #vertical justification, 0 is above and 1 is below
 ```
 A method to "repel" the labels so they don't overlap.
+LABELS ALL POINTS but they're all readable
 ```{r}
 ggplot(data = Sthd, mapping = aes(x = d15N_UW, y = PBDEsLipNorm)) +
   geom_point(mapping = aes(color = Year), size = 2, shape = 1) +
@@ -93,18 +98,22 @@ ggplot(data = Sthd, mapping = aes(x = d15N_UW, y = Sum47n99)) +
 Add a column with the ratio of PCBs to PBDEs
 Plot PCBs/PBDEs compared with d15N
 ```{r}
-colnames(Sthd)
 Sthd <- mutate(Sthd,
                ratio = TPCBs / Sum11PBDEs)
+Sthd$lab2 <- ifelse(Sthd$ratio > 3, Sthd$SampleID, "")
 
 ggplot(data = Sthd, mapping = aes(x = d15N_UW, y = ratio)) +
   geom_point(mapping = aes(color = Year), size = 2, shape = 1) +
   geom_smooth(method = lm, se = TRUE, level = 0.95) +
-  geom_text(aes(label = ifelse(ratio > 3, #only labels points above a certain threshold
-                               as.character(SampleID),
-                               ' ')),
-            hjust = 0,
-            vjust = 0)
+  geom_label_repel(aes(label = Sthd$lab2, #only labels points w/PBDEsLipNorm >900
+                    fill = factor(Year)), color = 'black',
+                    size = 3.5)
+#USE THIS CODE FIRST TO DETERMINE THRESHOLD FOR LABELS  
+  #geom_text(aes(label = ifelse(ratio > 3, #only labels points above a certain threshold
+                               #as.character(SampleID),
+                              #' ')),
+            #hjust = 0,
+            #vjust = 0)
 
 ```
 
@@ -113,27 +122,37 @@ One sample, Fish #147506 had a very high PCBs/PBDEs ratio as well as a high d15N
 STABLE ISOTOPE = d13C
 Sum11PBDEs (ng/g ww) compared with d13C
 ```{r}
-colnames(Sthd)
+Sthd$lab3 <- ifelse(Sthd$Sum11PBDEs > 9, Sthd$SampleID, "")
+
 ggplot(data = Sthd, mapping = aes(x = d13C_UW, y = Sum11PBDEs)) +
   geom_point(mapping = aes(color = Year), size = 2, shape = 1) +
   geom_smooth(method = lm, se = TRUE, level = 0.95) +
-  geom_text(aes(label = ifelse(Sum11PBDEs > 9, #only labels points above a certain threshold
-                               as.character(SampleID),
-                               ' ')),
-            hjust = 1,
-            vjust = 0)
+  geom_label_repel(aes(label = Sthd$lab3, #only labels points w/Sum11PBDEs >9
+                    fill = factor(Year)), color = 'black',
+                    size = 3.5)
+  #geom_text(aes(label = ifelse(Sum11PBDEs > 9, #only labels points above a certain threshold
+                               #as.character(SampleID),
+                               #' ')),
+            #hjust = 1,
+            #vjust = 0)
 ```
 
 PBDEs/g lipids compared with d13C
 ```{r}
+Sthd$lab4 <- ifelse(Sthd$PBDEsLipNorm > 950, Sthd$SampleID, "")
+
 ggplot(data = Sthd, mapping = aes(x = d13C_UW, y = PBDEsLipNorm)) +
   geom_point(mapping = aes(color = Year), size = 2, shape = 1) +
   geom_smooth(method = lm, se = TRUE, level = 0.95) +
-  geom_text(aes(label = ifelse(PBDEsLipNorm > 1000, #only labels points above a certain threshold
-                               as.character(SampleID),
-                               ' ')),
-            hjust = 0,
-            vjust = 0)
+  geom_label_repel(aes(label = Sthd$lab4, #only labels points w/PBDEsLipNorm >950
+                    fill = factor(Year)), color = 'black',
+                    size = 3.5)
+  
+  #geom_text(aes(label = ifelse(PBDEsLipNorm > 1000, 
+                               #as.character(SampleID),
+                               #' ')),
+            #hjust = 0,
+            #vjust = 0)
 ```
 
 Sum PBDEs 47 + 99 compared with d13C
@@ -150,25 +169,31 @@ ggplot(data = Sthd, mapping = aes(x = d13C_UW, y = Sum47n99)) +
 
 PCBs/PBDEs compared with d13C
 ```{r}
+Sthd$lab5 <- ifelse(Sthd$ratio > 3, Sthd$SampleID, "")
+
 ggplot(data = Sthd, mapping = aes(x = d13C_UW, y = ratio)) +
   geom_point(mapping = aes(color = Year), size = 2, shape = 1) +
   geom_smooth(method = lm, se = TRUE, level = 0.95) +
-  geom_text(aes(label = ifelse(ratio > 3, #only labels points above a certain threshold
-                               as.character(SampleID),
-                               ' ')),
-            hjust = 0,
-            vjust = 0)
+  geom_label_repel(aes(label = Sthd$lab5, #only labels points w/PCBs/PBDEs ratio >3
+                    fill = factor(Year)), color = 'black',
+                    size = 3.5)
+  
+  #geom_text(aes(label = ifelse(ratio > 3, #only labels points above a certain threshold
+                               #as.character(SampleID),
+                               #' ')),
+            #hjust = 0,
+            #vjust = 0)
 
 ```
 
 ```{r}
-Sthd$labyn <- ifelse(Sthd$PBDEsLipNorm > 900, Sthd$SampleID, "")
+Sthd$labyn <- ifelse(Sthd$PBDEsLipNorm > 900, Sthd$SampleID, "") #adds a new "dummy" column containing only SampleIDs with PBDEsLipNorm > 900 gPBDEs/g lipid
 
 ggplot(data = Sthd, mapping = aes(x = d15N_UW, y = PBDEsLipNorm)) +
   geom_point(mapping = aes(color = Year), size = 2, shape = 1) +
   geom_smooth(method = lm, se = TRUE, level = 0.95) +
-  geom_label_repel(aes(label = Sthd$labyn,
-                    fill = factor(Year)), color = 'white',
+  geom_label_repel(aes(label = Sthd$labyn, #only labels points w/PBDEsLipNorm >900
+                    fill = factor(Year)), color = 'black',
                     size = 3.5)
 ```
 
