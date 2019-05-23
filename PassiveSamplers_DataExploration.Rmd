@@ -197,3 +197,40 @@ ggplot(data = Sthd, mapping = aes(x = d15N_UW, y = PBDEsLipNorm)) +
                     size = 3.5)
 ```
 
+Create a bar chart of the PBDEs measured in the SPMDs and biofilm
+
+TPBDEs in Biofilm (parts per trillion)
+
+```{r}
+BioSPMD <- read_excel(paths[[1]],"BiofilmSPMDs")
+colnames(BioSPMD)
+BioSPMD$SiteID <- factor(BioSPMD$SiteID, levels = c("11NR3.75", "11MC0.25", "11NR12.25", "11CC0.25", "11NR12.5", "11NR10.0",
+                                                       "11NR26.25", "11OVC0.1", "11MR0.5", "11MR0.5 dup", "11MR4.9", "11NR39.75"))
+
+ggplot(BioSPMD, mapping = aes(x = SiteID, y = biofilm_ppt)) +
+  geom_bar(position = position_dodge(), fill = "#56B4E9", colour = "black", stat = "identity") +
+  guides(fill = FALSE) +
+  labs(x = "Site",
+       y = "TPBDEs in biofilm (ppt)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12)) 
+
+```
+
+TPBDEs in Biofilm AND SPMDs
+```{r}
+PPT <- read_excel(paths[[1]],"PassSampPPT")
+colnames(PPT)
+PPT$SiteID <- factor(PPT$SiteID, levels = c("11NR3.75", "11MC0.25", "11NR12.25", "11CC0.25", "11NR12.5", "11NR10.0",
+                                                       "11NR26.25", "11OVC0.1", "11MR0.5", "11MR0.5 dup", "11MR4.9", "11NR39.75"))
+
+
+ggplot(data = PPT, aes(x = SiteID, y = TPBDEs_ppt, fill = Matrix)) +
+  geom_bar(position = position_dodge(), colour = "black", stat = "identity") +
+  scale_fill_manual("#56B4E9", "#009E73") +
+  labs(x = "Site",
+       y = "TPBDEs (ppt)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12)) 
+```
+
