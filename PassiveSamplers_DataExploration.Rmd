@@ -12,6 +12,7 @@ library(readxl)
 library(tidyverse)
 library(stats)
 library(ggrepel)
+library(ggpubr)
 
 #set data path
 paths = list("C:\\data\\GitHub\\PassiveSamplers\\2017NQPassiveSamplers_Data.xlsx",
@@ -36,6 +37,7 @@ Sthd$Year <- as.factor(Sthd$Year) #set year as a factor so it can be used as a c
 
 ```
 
+2014/2015 STEELHEAD DATA
 STABLE ISOTOPE = d15N
 Sum11PBDEs (ng/g ww) compared with d15N
 ```{r}
@@ -215,7 +217,7 @@ ggplot(data = Sthd, mapping = aes(x = d15N_UW, y = PBDEsLipNorm)) +
 
 Create a bar chart of the PBDEs measured in the SPMDs and biofilm
 
-TPBDEs in Biofilm (parts per trillion)
+TPBDEs in Biofilm (pg/g)
 
 ```{r}
 BioSPMD <- read_excel(paths[[1]],"BiofilmSPMDs")
@@ -223,18 +225,43 @@ colnames(BioSPMD)
 BioSPMD$SiteID <- factor(BioSPMD$SiteID, levels = c("11NR3.75", "11MC0.25", "11NR12.25", "11CC0.25", "11NR12.5", "11NR10.0",
                                                        "11NR26.25", "11OVC0.1", "11MR0.5", "11MR0.5 dup", "11MR4.9", "11NR39.75"))
 
-ggplot(BioSPMD, mapping = aes(x = SiteID, y = biofilm_ppt)) +
-  geom_bar(position = position_dodge(), fill = "#56B4E9", colour = "black", stat = "identity") +
+Biofilm <- ggplot(BioSPMD, mapping = aes(x = SiteID, y = biofilm_pgg)) +
+  geom_bar(position = position_dodge(), fill = "#009E73", colour = "black", stat = "identity") +
   guides(fill = FALSE) +
-  labs(x = "Site",
-       y = "TPBDEs in biofilm (ppt)") +
+  labs(x = "",
+       y = "TPBDEs in biofilm (pg/g)") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12)) 
+
+ggsave(Biofilm, height = 4, width = 4, dpi = 300, filename = "Biofilm_pgg.png")
+
+```
+TPBDEs in SPMDs (pg/L)
+```{r}
+SPMDs <- ggplot(BioSPMD, mapping = aes(x = SiteID, y = SPMD_pgL)) +
+  geom_bar(position = position_dodge(), fill = "#56B4E9", colour = "black", stat = "identity") +
+  guides(fill = FALSE) +
+  labs(x = "",
+       y = "TPBDEs in SPMDs/water (pg/L)") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12))
+
+
+ggsave(SPMDs, height = 4, width = 4, dpi = 300, filename = "SPMDs_pgL.png")
+```
+
+Connect the Biofilm (pg/g) and SPMD (pg/L) bar chart to make one figure
+```{r}
+ggarrange(Biofilm, SPMDs + font("x.text", size = 10),
+          labels = c("A", "B"),
+          ncol = 2, nrow = 1)
 
 
 ```
 
-TPBDEs in Biofilm AND SPMDs
+
+
+TPBDEs in Biofilm AND SPMDs (same figure) - doesn't work because SPMD concentrations are too small.  Need to graph pg/L not ppt.
 ```{r}
 PPT <- read_excel(paths[[1]],"PassSampPPT")
 colnames(PPT)
@@ -251,7 +278,7 @@ ggplot(data = PPT, aes(x = SiteID, y = TPBDEs_ppt)) +
 Figure of just the SPMD PBDEs in parts per trillion
 ```{r}
 SPMD <- PPT %>%
-  filter(Matrix == "SPMD_ppt")
+  filter(Matrix == "SPMD_ppt") #filter out just the SPMD results
 colnames(SPMD)
 
 ggplot(data = SPMD, aes(x = SiteID, y = TPBDEs_ppt)) +
@@ -259,7 +286,16 @@ ggplot(data = SPMD, aes(x = SiteID, y = TPBDEs_ppt)) +
    labs(x = "Site",
        y = "TPBDEs (ppt)") +
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12)) 
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12))
+
+ggsave("SPMDs_ppt.png")
+
+```
+
+TPBDEs in Biofilm (pg/g) compared with SPMDs (pg/L)
+
+```{r}
+
 
 ```
 
