@@ -238,16 +238,28 @@ TPBDEs in Biofilm AND SPMDs
 ```{r}
 PPT <- read_excel(paths[[1]],"PassSampPPT")
 colnames(PPT)
-PPT$SiteID <- factor(PPT$SiteID, levels = c("11NR3.75", "11MC0.25", "11NR12.25", "11CC0.25", "11NR12.5", "11NR10.0",
-                                                       "11NR26.25", "11OVC0.1", "11MR0.5", "11MR0.5 dup", "11MR4.9", "11NR39.75"))
-
-##ERROR
+PPT$SiteID <- factor(PPT$SiteID, levels = c("11NR3.75", "11MC0.25", "11NR12.25", "11CC0.25", "11NR12.5", "11NR10.0", "11NR26.25", "11OVC0.1", "11MR0.5", "11MR0.5 dup", "11MR4.9", "11NR39.75"))
 
 ggplot(data = PPT, aes(x = SiteID, y = TPBDEs_ppt)) +
-  geom_bar(mapping = aes(fill = Matrix, position = "dodge"), stat = "identity") +
+  geom_bar(mapping = aes(fill = Matrix), stat = "identity") +
    labs(x = "Site",
        y = "TPBDEs (ppt)") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12)) 
+```
+
+Figure of just the SPMD PBDEs in parts per trillion
+```{r}
+SPMD <- PPT %>%
+  filter(Matrix == "SPMD_ppt")
+colnames(SPMD)
+
+ggplot(data = SPMD, aes(x = SiteID, y = TPBDEs_ppt)) +
+  geom_bar(mapping = aes(position = "dodge"), stat = "identity") +
+   labs(x = "Site",
+       y = "TPBDEs (ppt)") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12)) 
+
 ```
 
