@@ -232,6 +232,7 @@ Biofilm <- ggplot(BioSPMD, mapping = aes(x = SiteID, y = biofilm_pgg)) +
        y = "TPBDEs in biofilm (pg/g)") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12)) 
+Biofilm
 
 ggsave(Biofilm, height = 4, width = 4, dpi = 300, filename = "Biofilm_pgg.png")
 
@@ -242,16 +243,20 @@ SPMDs <- ggplot(BioSPMD, mapping = aes(x = SiteID, y = SPMD_pgL)) +
   geom_bar(position = position_dodge(), fill = "#56B4E9", colour = "black", stat = "identity") +
   guides(fill = FALSE) +
   labs(x = "",
-       y = "TPBDEs in SPMDs/water (pg/L)") +
+       y = "TPBDEs in water (pg/L)") +
   theme_bw() +
   theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12))
 
+SPMDs + annotate("text", x = 1, y = 60, label = "A", size = 10)
 
 ggsave(SPMDs, height = 4, width = 4, dpi = 300, filename = "SPMDs_pgL.png")
 ```
 
 Connect the Biofilm (pg/g) and SPMD (pg/L) bar chart to make one figure
 ```{r}
+library(Rmisc)
+PBDEsReport <- multiplot(SPMDs, Biofilm, cols = 2)
+
 ggarrange(Biofilm, SPMDs + font("x.text", size = 10),
           labels = c("A", "B"),
           ncol = 2, nrow = 1)
