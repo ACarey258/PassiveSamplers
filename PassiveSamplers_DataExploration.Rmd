@@ -231,10 +231,14 @@ Biofilm <- ggplot(BioSPMD, mapping = aes(x = SiteID, y = biofilm_pgg)) +
   labs(x = "",
        y = "TPBDEs in biofilm (pg/g)") +
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12)) 
-Biofilm
-
-ggsave(Biofilm, height = 4, width = 4, dpi = 300, filename = "Biofilm_pgg.png")
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12)) +
+  labs(subtitle = "B)") +
+  annotate("text", x = 4, y = 0, label = "NC", size = 4) +
+  annotate("text", x = 7, y = 0, label = "NC", size = 4) +
+  annotate("text", x = 10, y = 0, label = "NC", size = 4) +
+  theme(plot.subtitle = element_text(size = 12, face = "bold", color = "black"))
+ 
+ggsave(Biofilm, height = 4, width = 4.1, dpi = 300, filename = "Biofilm_pgg.png")
 
 ```
 TPBDEs in SPMDs (pg/L)
@@ -245,14 +249,16 @@ SPMDs <- ggplot(BioSPMD, mapping = aes(x = SiteID, y = SPMD_pgL)) +
   labs(x = "",
        y = "TPBDEs in water (pg/L)") +
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12))
-
-SPMDs + annotate("text", x = 1, y = 60, label = "A", size = 10)
+  theme(axis.text.x = element_text(angle = 45, hjust = 0.9, vjust = 0.95, size = 12)) +
+  labs(subtitle = "A)") +
+  theme(plot.subtitle = element_text(size = 12, face = "bold", color = "black"))
 
 ggsave(SPMDs, height = 4, width = 4, dpi = 300, filename = "SPMDs_pgL.png")
 ```
 
 Connect the Biofilm (pg/g) and SPMD (pg/L) bar chart to make one figure
+  Biofilm figure looks wonky. Change aspect ratio?
+  Needs work
 ```{r}
 library(Rmisc)
 PBDEsReport <- multiplot(SPMDs, Biofilm, cols = 2)
