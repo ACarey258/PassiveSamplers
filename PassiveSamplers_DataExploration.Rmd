@@ -303,10 +303,56 @@ ggsave("SPMDs_ppt.png")
 
 ```
 
-TPBDEs in Biofilm (pg/g) compared with SPMDs (pg/L)
+PBDEs fingerprint comparison between the three matrices
 
 ```{r}
+#read in data
+AllMat <- read_excel(paths[[1]],"SumPBDEs_ALL matrices", na = "")
+colnames(AllMat)
+#create new dataframe
+Props <- AllMat[ ,c(1,22:32)]
 
+#change column names
+colnames(Props)[colnames(Props) == "BDE 28..22"] <- "PBDE28"
+colnames(Props)[colnames(Props) == "BDE 47..23"] <- "PBDE47"
+colnames(Props)[colnames(Props) == "BDE 49..24"] <- "PBDE49"
+colnames(Props)[colnames(Props) == "BDE 66..25"] <- "PBDE66"
+colnames(Props)[colnames(Props) == "BDE 85..26"] <- "PBDE85"
+colnames(Props)[colnames(Props) == "BDE 99..27"] <- "PBDE99"
+colnames(Props)[colnames(Props) == "BDE 100..28"] <- "PBDE100"
+colnames(Props)[colnames(Props) == "BDE 153..29"] <- "PBDE153"
+colnames(Props)[colnames(Props) == "BDE 154..30"] <- "PBDE154"
+colnames(Props)[colnames(Props) == "BDE 155..31"] <- "PBDE155"
+colnames(Props)[colnames(Props) == "BDE 183..32"] <- "PBDE183"
+colnames(Props)
+```
 
+```{r}
+Props
+
+```
+
+I want to plot the mean proportion of each PBDE congener and group them by the matrix.
+
+x-axis - PBDE congener w/three bars per congener
+y-axis - mean proportion
+
+I need to calculate the mean proportion of each of the 11 congeners by matrix.
+1. Create a blank dataframe where the results will go
+2. Create a list of the PBDE congeners
+2. Create a for loop which would calculate the mean proportion of each congener in the dataframe
+
+```{r}
+## Comparison of contaminants and various biometrics (ForkLength, ScaleAge, SWage, FWage, OutmigrationLH, Lipids)
+# loop
+varlist <- unique(BMpops.long$time) #21 variables
+
+i=1
+for(i in 1:length(varlist)) {
+    var <- varlist[i]
+    
+    vardat <- BMpops.long[BMpops.long$time == var, ]
+    
+    }
 ```
 
